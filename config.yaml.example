@@ -1,0 +1,19 @@
+Port: :7125
+Cos:
+  SecretID:
+  SecretKey:
+  Bucket:
+  Region:
+  APIAddress:
+  Domain:
+Oss:
+  Ak:
+  Sk:
+  Bucket:
+  Endpoint:
+  Domain:
+Ups:
+  Bucket:
+  Operator:
+  Password:
+  Domain:
