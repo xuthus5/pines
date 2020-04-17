@@ -1,19 +1,49 @@
+# 注意: Domain 域名选项均以 / 结尾 如 Ups.Domain: https://test.cc/
+
+# 服务端口 (默认 :7125)
 Port: :7125
+# 默认上传接口 Ups 参数: [Ups/Cos/Oss]
+# 用于外部上传指定接口
+Default: Ups
+# 上传Token 供外部上传的接口需要Token验证
+UToken: LTAIeNu9L0MzBtJH
+# 身份认证Token 通过该Token进行服务管理
+Token: AKIDa3M4qZAKPOD6sSyVDwVOEyYlvwwrONxR
+# 腾讯云Cos服务
 Cos:
+  # API密钥ID
   SecretID:
+  # API密钥私钥
   SecretKey:
+  # 存储桶名称 规则 bucketname-appid => test-1234567889
   Bucket:
+  # 存储桶所属地域 规则 ap-nanjing
   Region:
+  # API地址(访问域名) 在存储桶列表->配置管理->基础配置中可见
+  # 规则 https://<bucket>.cos.<region>.myqcloud.com
+  # 默认为空 自动生成
   APIAddress:
+  # 自定义域名
   Domain:
+# 阿里云OSS服务
 Oss:
+  # AccessKey ID
   Ak:
+  # Access Key Secret
   Sk:
+  # 存储桶名称
   Bucket:
+  # 外网访问地域节点(非Bucket域名) 规则 oss-cn-shanghai.aliyuncs.com
   Endpoint:
+  # 自定义域名(Bucket域名或自定义) 规则 https://test-cn-shanghai.aliyuncs.com/
   Domain:
+# 又拍云云存储服务
 Ups:
+  # 存储桶名称
   Bucket:
+  # 被授权的操作员名称
   Operator:
+  # 被授权的操作员密码
   Password:
+  # 加速域名
   Domain:
