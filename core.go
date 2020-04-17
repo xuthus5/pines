@@ -13,14 +13,6 @@ import (
 	"time"
 )
 
-// Config 配置文件解析
-type Config struct {
-	Port string `yaml:"Port"`
-	Cos  `yaml:"Cos"`
-	Oss  `yaml:"Oss"`
-	Ups  `yaml:"Ups"`
-}
-
 type Cos struct {
 	SecretID   string `yaml:"SecretID"`   //API密钥ID
 	SecretKey  string `yaml:"SecretKey"`  //API密钥私钥
@@ -73,28 +65,36 @@ func UpsHandler(r *http.Request) (response []byte) {
 	//执行何种操作
 	var operate = r.URL.Query().Get("operate")
 	if operate == "list" {
-		var path = r.URL.Query().Get("path")
-		// path 为空 默认根目录
-		if path == "" {
-			path = "/"
-		}
+		var result []ListObject //结果集
+		var prefix = r.URL.Query().Get("prefix") + "/"
 		objsChan := make(chan *upyun.FileInfo, 10)
 		go func() {
 			up.List(&upyun.GetObjectsConfig{
-				Path:        path,
+				Path:        prefix,
 				ObjectsChan: objsChan,
 			})
 		}()
-		var list []*upyun.FileInfo
 		for obj := range objsChan {
-			list = append(list, obj)
+			var filename string
+			if obj.IsDir {
+				filename = obj.Name + "/"
+			} else {
+				filename = obj.Name
+			}
+			result = append(result, ListObject{
+				Filename:   filename,
+				Prefix:     prefix,
+				IsDir:      obj.IsDir,
+				Size:       obj.Size,
+				CreateTime: obj.Time,
+			})
 		}
 		//返回信息
 		response, _ = json.Marshal(&List{
 			Code:    200,
-			Message: config.Cos.Domain,
-			Data:    list,
-			Count:   len(list),
+			Message: config.Ups.Domain,
+			Data:    result,
+			Count:   len(result),
 		})
 	} else if operate == "delete" {
 		//需要删除的文件绝对路径
@@ -117,12 +117,12 @@ func UpsHandler(r *http.Request) (response []byte) {
 		})
 	} else if operate == "upload" {
 		var _, header, err = r.FormFile("file")
-		var path string
+		var prefix string
 		r.ParseMultipartForm(32 << 20)
 		if r.MultipartForm != nil {
-			values := r.MultipartForm.Value["path"]
+			values := r.MultipartForm.Value["prefix"]
 			if len(values) > 0 {
-				path = values[0]
+				prefix = values[0]
 			}
 		}
 		if err != nil {
@@ -135,7 +135,7 @@ func UpsHandler(r *http.Request) (response []byte) {
 		dst := header.Filename
 		source, _ := header.Open()
 		if err := up.Put(&upyun.PutObjectConfig{
-			Path:   path + dst,
+			Path:   prefix + dst,
 			Reader: source,
 		}); err != nil {
 			//上传失败
@@ -148,11 +148,12 @@ func UpsHandler(r *http.Request) (response []byte) {
 		response, _ = json.Marshal(&Response{
 			Code:    200,
 			Message: "ok",
-			Data:    config.Cos.Domain + path + dst,
+			Data:    config.Ups.Domain + prefix + dst,
 		})
 	} else if operate == "mkdir" {
-		var dir = r.URL.Query().Get("dir")
-		if err := up.Mkdir(dir); err != nil {
+		var prefix = r.URL.Query().Get("prefix")
+		var dirname = r.URL.Query().Get("dirname")
+		if err := up.Mkdir(prefix + dirname); err != nil {
 			response, _ = json.Marshal(&Response{
 				Code:    500,
 				Message: "ErrorMkdir:" + err.Error(),
@@ -322,7 +323,6 @@ func CosHandler(r *http.Request) (response []byte) {
 	return
 }
 
-// Init 初始化操作
 func InitOssClient() *Response {
 	client, err := oss.New(config.Oss.Endpoint, config.Oss.Ak, config.Oss.Sk)
 	if err != nil {
@@ -341,6 +341,7 @@ func InitOssClient() *Response {
 	}
 	return nil
 }
+
 func OssHandler(r *http.Request) (response []byte) {
 	if err := InitOssClient(); err != nil {
 		response, _ = json.Marshal(err)

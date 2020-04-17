@@ -6,6 +6,17 @@ import (
 	"sync"
 )
 
+// Config 配置文件解析
+type Config struct {
+	Port    string `yaml:"Port"`
+	Default string `yaml:"Default"`
+	Token   string `yaml:"Token"`
+	UToken  string `yaml:"UToken"`
+	Cos     `yaml:"Cos"`
+	Oss     `yaml:"Oss"`
+	Ups     `yaml:"Ups"`
+}
+
 // config 是一个全局的配置信息实例 项目运行只读取一次 是一个单例
 var config *Config
 var once sync.Once

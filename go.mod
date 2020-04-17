@@ -1,4 +1,4 @@
-module Cloud
+module Pines
 
 go 1.13
 
