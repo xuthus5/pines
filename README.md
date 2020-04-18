@@ -17,8 +17,8 @@ go run .
 
 ### ZEIT.CO无服务函数版本
 
-[zeit-pines](https://github.com/xuthus5/zeit-pines)
+[zeit-pines](https://github.com/togo-soft/zeit-pines)
 
-演示地址(请勿恶意上传)：[https://pines.980001.xyz/](https://pines.980001.xyz/)
+演示地址(请勿恶意上传)：[https://pines.xuthus.cc/](https://pines.xuthus.cc/)
 
 token:AKIDa3M4qZAKPOD6sSyVDwVOEyYlvwwrONxR
